@@ -161,11 +161,13 @@ if __name__ == '__main__':
         cur.execute(sql_tab2)
 
     ## Insert values
-    with SQLite(database) as conn:
-        for actor in actors:
-            insert_actor(conn, actor)
-        for movie in movies:
-            insert_movie(conn, movie)
+    add_values = False
+    if add_values:
+        with SQLite(database) as conn:
+            for actor in actors:
+                insert_actor(conn, actor)
+            for movie in movies:
+                insert_movie(conn, movie)
     
     ## Select/Update queries
     with SQLite(database) as conn:
