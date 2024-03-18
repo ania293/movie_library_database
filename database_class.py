@@ -17,15 +17,17 @@ class SQLite:
 
 
 # Functions    
-def insert_movie(conn, movie):
+def insert_movie(conn, movie, actor_name):
     '''
     Create a new movie:
     :param conn: the Connection object
     :param movie: tuple with arguments for movie table
     :return: movie id
     '''
+    res = select_where(conn, 'main_actors', "name == " + actor_name)
     sql = ("""INSERT INTO movies(actor_id, title, release, genre)
              VALUES(?,?,?,?)""")
+    movie.insert(0, res[0][0])
     cur = conn.cursor()
     cur.execute(sql, movie)
     conn.commit()
@@ -141,18 +143,21 @@ if __name__ == '__main__':
         FOREIGN KEY (actor_id) REFERENCES main_actors (id)
         );""")
     
-    actors = [("Brad Pitt", "Male"),
-              ("Timothée Chalamet", "Male"),
-              ("Morgan Freeman", "Male"),
-              ("Saoirse Ronan", "Female"),
-              ("Emma Stone", "Female")]
-    movies = [(1, "Bullet train", 2022, "Action"),
-              (2, "Dune 1", 2021, "Sci-fi/Adventure"),
-              (3, "The Shawshank Redemption", 1994, "Thriller/Crime"),
-              (4, "Little Woman", 2021, "Drama"),
-              (5, "La La Land", 2016, "Musical"),
-              (5, "Poor Things", 2023, "Comedy"),
-              (1, "Troy", 2004, "Action")]
+    actors = [["Brad Pitt", "Male"],
+              ["Timothée Chalamet", "Male"],
+              ["Morgan Freeman", "Male"],
+              ["Saoirse Ronan", "Female"],
+              ["Emma Stone", "Female"]]
+    movies = [["Bullet train", 2022, "Action"],
+              ["Dune 1", 2021, "Sci-fi/Adventure"],
+              ["The Shawshank Redemption", 1994, "Thriller/Crime"],
+              ["Little Woman", 2021, "Drama"],
+              ["La La Land", 2016, "Musical"],
+              ["Poor Things", 2023, "Comedy"],
+              ["Troy", 2004, "Action"]]
+    
+    movie_actor = ["'Brad Pitt'", "'Timothée Chalamet'", "'Morgan Freeman'", "'Saoirse Ronan'",
+                   "'Emma Stone'", "'Emma Stone'", "'Brad Pitt'"]
         
     ## Init database
     with SQLite(database) as conn:
@@ -166,8 +171,8 @@ if __name__ == '__main__':
         with SQLite(database) as conn:
             for actor in actors:
                 insert_actor(conn, actor)
-            for movie in movies:
-                insert_movie(conn, movie)
+            for ind, movie in enumerate(movies):
+                insert_movie(conn, movie, movie_actor[ind])
     
     ## Select/Update queries
     with SQLite(database) as conn:
@@ -179,6 +184,5 @@ if __name__ == '__main__':
         delete_where(conn, 'movies', 'id == 3')
         #delete_all(conn, 'main_actors')
         #delete_all(conn, 'movies')
-
 
     
